@@ -35,4 +35,5 @@ After the end will use the game state to make statistics about the session and s
 <li>Golang/Python/C#</li>
 </ul>
 <h3> System diagram:</h3><br>
-![Output](https://github.com/Misanea777/PAD_LAB/blob/main/docs/imgs/arch.png)
+![Output](https://github.com/maximums/PR_lab_1/blob/master/img/conn.png)
+<br>
