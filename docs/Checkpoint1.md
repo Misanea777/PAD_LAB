@@ -33,7 +33,7 @@ After the end will use the game state to make statistics about the session and s
 <li>Mysql</li>
 <li>RabbitMQ/Apache Kafka</li>
 <li>Golang/Python/C#</li>
-</ul>
-<h3> System diagram:</h3><br>
+</ul><br>
+### System diagram: <br>
 ![Output](https://github.com/maximums/PR_lab_1/blob/master/img/conn.png)
 <br>
