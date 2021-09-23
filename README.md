@@ -4,7 +4,7 @@
 <br>
 <hr>
 <ol>
-<li> [Checkpoint](https://github.com/Misanea777/PAD_LAB/blob/main/docs/Checkpoint1.md) </li>
+<li><a href="https://github.com/Misanea777/PAD_LAB/blob/main/docs/Checkpoint1.md">Checkpoint</a></li>
 <li>Checkpoint</li>
 <li>Checkpoint</li>
 <li>Checkpoint</li>
