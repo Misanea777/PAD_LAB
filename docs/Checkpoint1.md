@@ -24,4 +24,4 @@ Will provide security token
 </ul>
 <h3> System diagram:</h3>
 
-[architecture](https://github.com/Misanea777/PAD_LAB/blob/main/docs/imgs/arch.png)
+<img src"https://github.com/Misanea777/PAD_LAB/blob/main/docs/imgs/arch.png"/>
