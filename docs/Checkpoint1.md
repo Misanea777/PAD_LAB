@@ -37,6 +37,6 @@ After the end will use the game state to make statistics about the session and s
 
 ### System diagram: <br>
 
-![Output](https://github.com/maximums/PR_lab_1/blob/master/img/conn.png)
+![Output](https://github.com/Misanea777/PAD_LAB/blob/main/docs/imgs/arch.png)
 
 <br>
