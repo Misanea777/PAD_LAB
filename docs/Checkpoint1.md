@@ -34,7 +34,7 @@ After the end will use the game state to make statistics about the session and s
 <li>RabbitMQ/Apache Kafka</li>
 <li>Golang/Python/C#</li>
 </ul><br>
-
+test
 ### System diagram: <br>
 
 ![Output](https://github.com/Misanea777/PAD_LAB/blob/main/docs/imgs/arch.png)
