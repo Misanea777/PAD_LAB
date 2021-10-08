@@ -8,23 +8,47 @@
 </ul>
 <h3> Outbound API endpoints</h3>
 <hr>
-<h4> Security service</h4>
-Will provide security token after ensuring entered credentials are valid.
-Also will be used to check this tokens validity when entering a game session.
-<h4> Session service</h4>
+<h4> Security service APIs (!cached)</h4>
+Will provide user registration and AUF
+
+  Register API:
+  Endpoint for registering users.
+  Request - POST, userrname, pswd
+  Response - 2** (Success) / 5**, 4**, ... (Error) 
+  
+  Auth API:
+  AUF a user
+  Request - POST, usname, pswd
+  Response - 2**, jwt / 4**, 5** (Error)
+<h4> Session service APIs (only GET req are cached)</h4>
 Will update the client game state. Will provide game state to clients who joined in progress.
+  Request - POST, game session id, connect
+  Response - (Succes) / (Full), (Private), (Err)
+  
+  Req - GET, map, chunkID
+  Res - (Succ) chunk / (Err)
+  
+  Req (Stream) - POST, setPlayerAction, action
+  Res - no response
+  
+  Req - GET, gameState, game sessionID
+  Res (Stream) - (Succ) gameState / (Err)
 <h3> Inbound API endpoints </h3>
 <hr>
-<h4> Cache</h4>
-Will update the cache with necessary information. 
-In the case of sessions service cache will be used to store the game state, while at the same time backups will be made in SQL database.
+<h4> Cache APIs</h4>
+Update/Get data from cache
+
+Req - POST, key, val
+Res - No resp
+
+Req - GET, key
+Res - (Succ) val / (not found) / (err)
 <h4> Gateway</h4>
-Will accept requests from the clinets and redirect them to message broker if the response is not stored in the cache.
-<h4> Security service</h4>
-Will be connected to user database(SQL) for authentication and autherization.
-<h4> Session service</h4>
-Will accept join requests from clinets and register their stream of input to be used for updating the game state.
-After the end will use the game state to make statistics about the session and store them in NoSQL database.
+Will accept requests from the clinets 
+
+Req - any req
+Res - necessary resp
+
 <h3> Technologies:</h3>
 <hr>
 <ul>
@@ -33,6 +57,7 @@ After the end will use the game state to make statistics about the session and s
 <li>Mysql</li>
 <li>RabbitMQ/Apache Kafka</li>
 <li>Golang/Python/C#</li>
+<li>Docker compose</li>
 </ul><br>
 test
 ### System diagram: <br>
