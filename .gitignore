@@ -1,0 +1,47 @@
+# /proxy
+
+# /out/
+
+# /.mvn/**
+
+# /.idea
+# /*.iws
+# /*.iml
+# /*.ipr
+
+# .vscode/
+
+# /nbproject/private/
+# /nbbuild/
+# /dist/
+# /nbdist/
+# /.nb-gradle/
+# /build/
+# /!**/src/main/**/build/
+# /!**/src/test/**/build/
+
+# /.apt_generated
+# /.classpath
+# /.factorypath
+# /.project
+# /.settings
+# /.springBeans
+# /.sts4-cache
+
+# /HELP.md
+# # /target/
+# /!.mvn/wrapper/maven-wrapper.jar
+# # /!**/src/main/**/target/
+# # /!**/src/test/**/target/
+# /PAD-system-config/
+# /configserver/.gitignore
+# /configserver/.mvn/wrapper/maven-wrapper.jar
+# /discoveryserver/.mvn/wrapper/maven-wrapper.jar
+# /discoveryserver/.gitignore
+# /gateway/.mvn/wrapper/maven-wrapper.jar
+# /gateway/.gitignore
+# /testservice/.gradle/
+# /testservice/gradle/
+# /testservice/out/
+# /testservice/.gitignore
+# /testservice/.mvn/wrapper/maven-wrapper.jar
