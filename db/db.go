@@ -19,7 +19,7 @@ func InitDB() {
 
 	flag.Parse()
 
-	db, err := sql.Open("mysql", "root:root@/")
+	db, err := sql.Open("mysql", "root:root@tcp(goDB)/")
 	if err != nil {
 		panic(err.Error())
 	}
@@ -36,7 +36,7 @@ func InitDB() {
 	}
 	db.Close()
 
-	db, err = sql.Open("mysql", "root:root@/users")
+	db, err = sql.Open("mysql", "root:root@tcp(goDB)/users")
 	if err != nil {
 		panic(err.Error())
 	}

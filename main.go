@@ -16,7 +16,7 @@ func main() {
 
 	db.InitDB()
 	validators.InitValidator()
-	db.InitRedis()
+	// db.InitRedis()
 
 	app.Run(iris.Addr(":8080"))
 }
