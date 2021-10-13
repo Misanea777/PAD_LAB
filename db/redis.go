@@ -13,7 +13,7 @@ var RedisClient *redis.Client
 func InitRedis() {
 	dsn := os.Getenv("REDIS_DSN")
 	if len(dsn) == 0 {
-		dsn = "localhost:8081"
+		dsn = "goRedis:6379"
 	}
 	RedisClient = redis.NewClient(&redis.Options{
 		Addr: dsn,
