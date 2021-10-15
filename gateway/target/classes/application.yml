@@ -8,12 +8,12 @@ spring:
           enabled: true
           lower-case-service-id: true
       routes:
-        - id: teset-service
-          uri: lb://teset-service
+        - id: security-service
+          uri: lb://security-service
           predicates:
             - name: Path
               args:
-                pattern: "/api/**"
+                pattern: "/user/**"
 eureka:
   instance:
     instance-id: ${spring.application.name}-${random.uuid}

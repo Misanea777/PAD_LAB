@@ -1,15 +1,15 @@
 services:
-  configServer:
-    depends_on: 
-    - discoveryServer
-    build: configserver/
-    image: configserver
-    ports:
-      - "8888:8888"
-    environment:
-      - GIT_URL=https://github.com/maximums/PAD-config-server
-      - GIT_USERNAME=Sdude225
-      - GIT_PASSWORD=Dest66326rugatorul22
+  # configServer:
+  #   depends_on: 
+  #   - discoveryServer
+  #   build: configserver/
+  #   image: configserver
+  #   ports:
+  #     - "8888:8888"
+  #   environment:
+  #     - GIT_URL=https://github.com/maximums/PAD-config-server
+  #     - GIT_USERNAME=Sdude225
+  #     - GIT_PASSWORD=Dest66326rugatorul22
   discoveryServer:
     build: discoveryserver/
     image: discoveryserver
@@ -46,6 +46,7 @@ services:
     build:
       context: securityservice/
       dockerfile: Dockerfile
+    container_name: securityService
     ports:
       - 8090:8090
     restart: on-failure
