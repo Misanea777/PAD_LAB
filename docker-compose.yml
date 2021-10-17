@@ -8,8 +8,8 @@ services:
   #     - "8888:8888"
   #   environment:
   #     - GIT_URL=https://github.com/maximums/PAD-config-server
-  #     - GIT_USERNAME=Sdude225
-  #     - GIT_PASSWORD=Dest66326rugatorul22
+  #     - GIT_USERNAME=
+  #     - GIT_PASSWORD=
   discoveryServer:
     build: discoveryserver/
     image: discoveryserver
