@@ -65,7 +65,7 @@ services:
 
   session:
     build:
-      context: sessionservice/
+      context: session/
       dockerfile: Dockerfile
     container_name: sessionService
     ports:
