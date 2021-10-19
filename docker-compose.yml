@@ -61,6 +61,25 @@ services:
     container_name: goRedis
     ports:
       - 6379:6379
+  
+
+  session:
+    build:
+      context: sessionservice/
+      dockerfile: Dockerfile
+    container_name: sessionService
+    ports:
+      - 8081:8080
+    restart: on-failure
+    depends_on:
+      - session_cache
+
+  session_cache:
+    image: redis
+    command: redis-server
+    container_name: sessionCache
+    ports:
+      - 8082:6379
 
 
 
