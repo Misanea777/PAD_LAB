@@ -6,7 +6,14 @@ import (
 	"log"
 	"net/http"
 	"session/cache"
+	"session/conn"
+	"session/instance"
 
+	"encoding/json"
+
+	"session/myTypes"
+
+	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
 )
 
@@ -16,20 +23,21 @@ var upgrader = websocket.Upgrader{} // use default options
 
 func main() {
 	cache.Init()
-	t := cache.Store("loh", "misanea blea")
-	fmt.Print(t)
-	// r := cache.Get("loh")
-	// fmt.Print(r)
+	conn.PingEureka()
+
 	test()
 }
 
 func test() {
+	rtr := mux.NewRouter()
+	s := rtr.PathPrefix("/session").Subrouter()
+
 	port := 8080
-	http.HandleFunc("/create", createHandler)
-	http.HandleFunc("/join", joinHandl)
-	http.Handle("/ss", http.RedirectHandler("https://9gag.com/", 302))
-	http.HandleFunc("/echo", echo)
-	http.ListenAndServe(fmt.Sprintf(":%v", port), nil)
+	s.HandleFunc("/create", createHandler)
+	s.HandleFunc("/join", joinHandl)
+	s.Handle("/ss", http.RedirectHandler("https://9gag.com/", 302))
+	s.HandleFunc("/echo", echo)
+	http.ListenAndServe(fmt.Sprintf(":%v", port), rtr)
 }
 
 func echo(w http.ResponseWriter, r *http.Request) {
@@ -55,16 +63,16 @@ func echo(w http.ResponseWriter, r *http.Request) {
 }
 
 func createHandler(w http.ResponseWriter, r *http.Request) {
-	// s := instance.Create("loh", 4)
-	// i := *s
-	temp, err := cache.Get("loh")
-	if err != nil {
-		log.Default().Println("Not found")
+	log.Default().Println("reached")
+
+	i := instance.NewWorldMap()
+	c := *i.GetChunk(myTypes.PosAsID{PosX: 0, PosY: 0})
+	js, e := json.Marshal(c)
+	if e == nil {
+		w.Write([]byte(js))
 	}
-	log.Default().Println(temp)
-	w.Write([]byte(temp))
-	// fmt.Fprintf(w, temp)
 }
+
 func joinHandl(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "pozno")
 }

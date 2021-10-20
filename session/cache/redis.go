@@ -3,7 +3,11 @@ package cache
 import (
 	"context"
 	"os"
+	"strconv"
+	"strings"
 	"time"
+
+	"session/myTypes"
 
 	"github.com/go-redis/cache/v8"
 	"github.com/go-redis/redis/v8"
@@ -40,11 +44,27 @@ func Init() {
 
 }
 
-func Store(key string, obj interface{}) error {
+type ChunkKey struct {
+	WordlId uint64
+	PosX    int64
+	PosY    int64
+}
 
+func (ck ChunkKey) toString() string {
+	var sb strings.Builder
+	sb.WriteString(strconv.Itoa(int(ck.WordlId)))
+	sb.WriteString("-")
+	sb.WriteString(strconv.Itoa(int(ck.PosX)))
+	sb.WriteString("-")
+	sb.WriteString(strconv.Itoa(int(ck.PosY)))
+	return sb.String()
+}
+
+func Store(key ChunkKey, obj myTypes.Chunk) error {
+	stringKey := key.toString()
 	if err := mycache.Set(&cache.Item{
 		Ctx:   ctx,
-		Key:   key,
+		Key:   stringKey,
 		Value: obj,
 		TTL:   time.Minute,
 	}); err != nil {
@@ -54,8 +74,9 @@ func Store(key string, obj interface{}) error {
 	return nil
 }
 
-func Get(key string) (string, error) {
-	var wanted string
-	err := mycache.Get(ctx, key, &wanted)
+func Get(key ChunkKey) (myTypes.Chunk, error) {
+	stringKey := key.toString()
+	var wanted myTypes.Chunk
+	err := mycache.Get(ctx, stringKey, &wanted)
 	return wanted, err
 }
