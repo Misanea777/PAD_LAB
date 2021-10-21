@@ -14,6 +14,13 @@ spring:
             - name: Path
               args:
                 pattern: "/user/**"
+
+        - id: session-service
+          uri: lb://session-service
+          predicates:
+            - name: Path
+              args:
+                pattern: "/session/**"
 eureka:
   instance:
     instance-id: ${spring.application.name}-${random.uuid}

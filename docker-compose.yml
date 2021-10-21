@@ -69,10 +69,11 @@ services:
       dockerfile: Dockerfile
     container_name: sessionService
     ports:
-      - 8081:8080
+      - 8081:8081
     restart: on-failure
     depends_on:
       - session_cache
+      - mongodb_container
 
   session_cache:
     image: redis
@@ -81,6 +82,20 @@ services:
     ports:
       - 8082:6379
 
+  mongodb_container:
+    image: mongo:latest
+    container_name: mongodb
+    restart: on-failure
+    # environment:
+    #   MONGO_INITDB_ROOT_USERNAME: root
+    #   MONGO_INITDB_ROOT_PASSWORD: rootpassword
+    ports:
+      - 27017:27017
+    volumes:
+      - mongodb_data_container:/data/db
+
+volumes:
+  mongodb_data_container:
 
 
 

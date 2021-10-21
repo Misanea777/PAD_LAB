@@ -66,7 +66,7 @@ func Store(key ChunkKey, obj myTypes.Chunk) error {
 		Ctx:   ctx,
 		Key:   stringKey,
 		Value: obj,
-		TTL:   time.Minute,
+		TTL:   time.Second * 3,
 	}); err != nil {
 		return err
 	}

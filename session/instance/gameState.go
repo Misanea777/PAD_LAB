@@ -5,36 +5,36 @@ import (
 )
 
 type GameState struct {
-	wrldMap WorldMap
-	players []Player
+	WrldMap WorldMap
+	Players []myTypes.Player
 }
 
 func NewGameState(id uint64) *GameState {
-	gms := GameState{wrldMap: WorldMap{Id: id}}
+	gms := GameState{WrldMap: WorldMap{Id: id}}
 	return &gms
 }
 
 func (gms GameState) JoinPlayer(usnm string) error {
-	for _, player := range gms.players {
+	for _, player := range gms.Players {
 		if usnm == player.Usnm {
-			player.status = true
+			player.Status = true
 			return nil
 		}
 	}
-	newPlayer := Player{Usnm: usnm, PlayerPos: Pos{X: 0, Y: 0}, status: true}
-	gms.players = append(gms.players, newPlayer)
+	newPlayer := myTypes.Player{Usnm: usnm, PlayerPos: myTypes.Pos{X: 0, Y: 0}, Status: true}
+	gms.Players = append(gms.Players, newPlayer)
 	return nil
 }
 
-func (gms GameState) addPlayer(pl Player) error {
-	gms.players = append(gms.players, pl)
+func (gms GameState) addPlayer(pl myTypes.Player) error {
+	gms.Players = append(gms.Players, pl)
 	return nil
 }
 
 func (gms GameState) GetChunks(ids []myTypes.PosAsID) ([]myTypes.Chunk, error) {
 	var reqChunks []myTypes.Chunk
 	for _, id := range ids {
-		c := *gms.wrldMap.GetChunk(id)
+		c := *gms.WrldMap.GetChunk(id)
 		reqChunks = append(reqChunks, c)
 	}
 	return reqChunks, nil

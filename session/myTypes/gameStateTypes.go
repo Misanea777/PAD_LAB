@@ -19,3 +19,14 @@ type Tile struct {
 	TileType int
 	Id       PosAsID
 }
+
+type Pos struct {
+	X float64
+	Y float64
+}
+
+type Player struct {
+	Usnm      string
+	PlayerPos Pos
+	Status    bool
+}
