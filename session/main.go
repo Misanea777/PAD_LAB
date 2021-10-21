@@ -65,8 +65,9 @@ func echo(w http.ResponseWriter, r *http.Request) {
 func createHandler(w http.ResponseWriter, r *http.Request) {
 	log.Default().Println("reached")
 
-	i := instance.NewWorldMap()
-	c := *i.GetChunk(myTypes.PosAsID{PosX: 0, PosY: 0})
+	i := instance.NewGameState(0)
+	ids := []myTypes.PosAsID{myTypes.PosAsID{PosX: 0, PosY: 0}, myTypes.PosAsID{PosX: 0, PosY: 1}}
+	c, _ := i.GetChunks(ids)
 	js, e := json.Marshal(c)
 	if e == nil {
 		w.Write([]byte(js))
