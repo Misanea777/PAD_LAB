@@ -15,6 +15,7 @@ func main() {
 	usersAPI := app.Party("/user")
 	usersAPI.Post("/register", controllers.Register)
 	usersAPI.Get("/login", controllers.Login)
+	usersAPI.Get("/auth", controllers.Auth)
 
 	db.InitDB()
 	validators.InitValidator()

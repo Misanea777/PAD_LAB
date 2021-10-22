@@ -36,3 +36,8 @@ type TokenDetails struct {
 	AtExpires    int64  `json:"at_expires"`
 	RtExpires    int64  `json:"rt_expires"`
 }
+
+type AccessDetails struct {
+	AccessUuid string
+	UserUuid   string
+}
