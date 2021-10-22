@@ -1,7 +1,7 @@
 package gamestate
 
 type GameState struct {
-	Id      uint64
+	Id      uint32
 	Players []Player
 }
 

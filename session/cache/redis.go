@@ -39,7 +39,7 @@ func Init() {
 }
 
 type ChunkKey struct {
-	WordlId uint64
+	WordlId uint32
 	PosX    int64
 	PosY    int64
 }

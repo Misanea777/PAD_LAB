@@ -7,7 +7,7 @@ import (
 	mapSt "session/game/mapState"
 )
 
-func NewGameStateWithId(id uint64) *state.GameState {
+func NewGameStateWithId(id uint32) *state.GameState {
 	gms := state.GameState{Id: id}
 	cache.StoreSt(&gms)
 	return &gms

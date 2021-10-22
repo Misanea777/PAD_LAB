@@ -1,27 +1,36 @@
 package main
 
 import (
+	"log"
 	"session/cache"
 	"session/conn"
+	"session/db"
 
 	"session/mux"
 
 	"time"
+
+	"session/game/actions"
+	mapstate "session/game/mapState"
 )
 
 func main() {
-	// db.Connect()
+	db.Connect()
 	cache.Init()
 	time.Sleep(time.Second * 10)
 	conn.PingEureka()
 
+	test()
+
 	mux.Init()
 
-	// test()
 }
 
-// func test() {
-// 	gm := actions.NewGameState(12345)
-// 	actions.JoinPlayer("misa", gm)
-// 	chnk := actions.GetChunk(gm.Id, mapSt.PosAsID{0,0})
-// }
+func test() {
+	gm := actions.NewGameState()
+	actions.JoinPlayer("misa", gm)
+	chnk := actions.GetChunk(gm.Id, mapstate.PosAsID{1, 0})
+	db.UpdateChnk(gm.Id, *chnk)
+	db.GetChnk(gm.Id, mapstate.PosAsID{0, 0})
+	log.Default().Println("HEREEEEEEEEE")
+}

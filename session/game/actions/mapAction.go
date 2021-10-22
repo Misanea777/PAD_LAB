@@ -7,7 +7,7 @@ import (
 	mapSt "session/game/mapState"
 )
 
-func GetChunk(sessionId uint64, id mapSt.PosAsID) *mapSt.Chunk {
+func GetChunk(sessionId uint32, id mapSt.PosAsID) *mapSt.Chunk {
 	key := cache.ChunkKey{WordlId: sessionId, PosX: id.PosX, PosY: id.PosY}
 	res, err := cache.GetChnk(key)
 	if err == nil {
