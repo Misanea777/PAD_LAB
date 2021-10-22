@@ -39,3 +39,12 @@ func SaveToken(ID string, td *validators.TokenDetails) error {
 	}
 	return nil
 }
+
+func FetchAuth(authD *validators.AccessDetails) (string, error) {
+	userid, err := RedisClient.Get(authD.AccessUuid).Result()
+	if err != nil {
+		return "", err
+	}
+
+	return userid, nil
+}
