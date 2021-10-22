@@ -1,17 +1,17 @@
 package mapstate
 
 type PosAsID struct {
-	PosX int64
-	PosY int64
+	PosX int64 `bson:"posx"`
+	PosY int64 `bson:"posy"`
 }
 
 type Chunk struct {
-	Size  int
+	Size  int `bson:"size"`
 	Id    PosAsID
 	Tiles []Tile
 }
 
 type Tile struct {
-	TileType int
+	TileType int `bson:"title_type"`
 	Id       PosAsID
 }

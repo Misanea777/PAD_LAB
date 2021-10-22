@@ -72,22 +72,13 @@ func Hash(objs ...interface{}) uint32 {
 func UpdateChnk(id uint32, chnk mapstate.Chunk) error {
 	collection := mongoClient.Database("session").Collection("maps")
 	model := newChunkModel(id, chnk)
-	chnkBson, err := bson.Marshal(model.Chnk)
-	if err != nil {
-		return err
-	}
 	update := bson.M{
-		"$set": bson.M{"chunk": chnkBson},
-	}
-
-	idBson, err := bson.Marshal(model.Id)
-	if err != nil {
-		return err
+		"$set": bson.M{"chunk": model.Chnk},
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	t, err := collection.UpdateOne(ctx, bson.M{"_id": idBson}, update, options.Update().SetUpsert(true))
+	t, err := collection.UpdateOne(ctx, bson.M{"_id": model.Id}, update, options.Update().SetUpsert(true))
 	if t.MatchedCount == 0 && err == nil {
 		_, err = collection.InsertOne(ctx, model)
 	}
