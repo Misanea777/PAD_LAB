@@ -1,7 +1,9 @@
 FROM maven:3.6.0-jdk-11-slim AS build
-RUN mvn -f clean package
+COPY src /home/app/src
+COPY pom.xml /home/app
+RUN mvn -f /home/app/pom.xml clean package
 
 FROM openjdk:15-jdk-alpine3.12
+COPY --from=build /home/app/target/gateway.jar /usr/local/lib/demo.jar
 EXPOSE 8080
-ADD /target/gateway.jar gateway.jar
-ENTRYPOINT ["java","-jar","gateway.jar"]
+ENTRYPOINT ["java","-jar","/usr/local/lib/demo.jar"]
