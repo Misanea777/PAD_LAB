@@ -122,3 +122,50 @@ func Auth(ctx iris.Context) {
 		"message": userID,
 	})
 }
+
+func EndpointStatus(ctx iris.Context) {
+	var (
+		count int
+		err   error
+	)
+
+	count, err = models.GetRegisteredUsersNumber()
+	if err != nil {
+		ctx.StatusCode(iris.StatusBadRequest)
+		ctx.JSON(map[string]interface{}{
+			"status":  "failed",
+			"message": err.Error(),
+		})
+		return
+	}
+
+	err = db.Mysql.Ping()
+	if err != nil {
+		ctx.StatusCode(iris.StatusBadRequest)
+		ctx.JSON(map[string]interface{}{
+			"status":  "failed",
+			"message": "mysql db is down",
+		})
+		return
+	}
+
+	_, err = db.RedisClient.Ping().Result()
+	if err != nil {
+		ctx.StatusCode(iris.StatusBadRequest)
+		ctx.JSON(map[string]interface{}{
+			"status":  "failed",
+			"message": "redis is down",
+		})
+		return
+	}
+
+	ctx.StatusCode(iris.StatusOK)
+	ctx.JSON(map[string]interface{}{
+		"status": "success",
+		"message": map[string]interface{}{
+			"users_count": count,
+			"mysql":       "up",
+			"redis":       "up",
+		},
+	})
+}

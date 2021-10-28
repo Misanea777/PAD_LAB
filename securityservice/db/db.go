@@ -79,3 +79,16 @@ func SelfMadeShittyTransaction(sql *sql.DB) error {
 
 	return nil
 }
+
+func CheckDBConnection() {
+	for {
+		err := Mysql.Ping()
+		if err != nil {
+			fmt.Println("db down, try to reconnect...")
+			InitDB()
+		}
+		fmt.Println("dp up, sleep 30s...")
+
+		time.Sleep(30 * time.Second)
+	}
+}

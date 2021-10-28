@@ -16,7 +16,10 @@ func InitRedis() {
 		dsn = "goRedis:6379"
 	}
 	RedisClient = redis.NewClient(&redis.Options{
-		Addr: dsn,
+		Addr:         dsn,
+		PoolSize:     20,
+		MinIdleConns: 10,
+		Password:     "password",
 	})
 	_, err := RedisClient.Ping().Result()
 	if err != nil {
