@@ -71,3 +71,18 @@ func LoginUser(user validators.UserCredentials) (string, error) {
 
 	return ID, nil
 }
+
+func GetRegisteredUsersNumber() (int, error) {
+	var count int
+	q := `
+		SELECT COUNT(*) FROM Users
+	`
+	res := db.Mysql.QueryRow(q)
+
+	err := res.Scan(&count)
+	if err != nil {
+		return 0, err
+	}
+
+	return count, nil
+}

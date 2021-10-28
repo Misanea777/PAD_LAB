@@ -2,16 +2,20 @@ package db
 
 import (
 	"context"
-	"errors"
 	"log"
-
-	"session/myTypes"
+	mapstate "session/game/mapState"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
+
+	"crypto"
+	_ "crypto/md5"
+	"encoding/binary"
+	"fmt"
+	"reflect"
 )
 
 var mongoClient *mongo.Client
@@ -46,82 +50,55 @@ func Connect() {
 	log.Default().Println("db Created")
 }
 
-type FullGameState struct {
-	Id      uint64           `bson:"_id"`
-	Chunks  []myTypes.Chunk  `bson:"chunks"`
-	Players []myTypes.Player `bson:"players"`
+type ChunkModel struct {
+	Id   uint32         `bson:"_id"`
+	Chnk mapstate.Chunk `bson:"chunk"`
 }
 
-func UpdateMap(id uint64, chnks []myTypes.Chunk) error {
-	current, _ := GetMap(id)
+func newChunkModel(id uint32, chnk mapstate.Chunk) ChunkModel {
+	return ChunkModel{Id: Hash(id, chnk.Id.PosX, chnk.Id.PosY), Chnk: chnk}
+}
 
-	current = append(current, chnks...)
+func Hash(objs ...interface{}) uint32 {
+	digester := crypto.MD5.New()
+	for _, ob := range objs {
+		fmt.Fprint(digester, reflect.TypeOf(ob))
+		fmt.Fprint(digester, ob)
+	}
+	data := binary.BigEndian.Uint32(digester.Sum(nil))
+	return data
+}
 
-	log.Default().Println("updating....")
-	log.Default().Println(len(current))
-
+func UpdateChnk(id uint32, chnk mapstate.Chunk) error {
 	collection := mongoClient.Database("session").Collection("maps")
-	toStore := FullGameState{Id: id, Chunks: current}
-
+	model := newChunkModel(id, chnk)
 	update := bson.M{
-		"$set": bson.D{{"chunks", toStore.Chunks}},
+		"$set": bson.M{"chunk": model.Chnk},
 	}
+
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	_, e1 := collection.UpdateOne(ctx, bson.D{{"_id", id}}, update, options.Update().SetUpsert(true))
-	log.Default().Println(e1)
-	return nil
+	t, err := collection.UpdateOne(ctx, bson.M{"_id": model.Id}, update, options.Update().SetUpsert(true))
+	if t.MatchedCount == 0 && err == nil {
+		_, err = collection.InsertOne(ctx, model)
+	}
+	log.Default().Println("Atemting to save.....")
+	// log.Default().Println(t.MatchedCount)
+	log.Default().Println(id)
+	log.Default().Println(err)
+	return err
 }
 
-func GetMap(gameId uint64) ([]myTypes.Chunk, error) {
+func GetChnk(id uint32, chnkId mapstate.PosAsID) (mapstate.Chunk, error) {
 	collection := mongoClient.Database("session").Collection("maps")
-	var m FullGameState
-	filter := bson.D{{"_id", gameId}}
+	filter := bson.M{"_id": Hash(id, chnkId.PosX, chnkId.PosY)}
+
+	var model ChunkModel
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	err := collection.FindOne(ctx, filter).Decode(&m)
-
-	return m.Chunks, err
-}
-
-func GetChunk(gameId uint64, id myTypes.PosAsID) (myTypes.Chunk, error) {
-	var chnk myTypes.Chunk
-	m, err := GetMap(gameId)
-	if err != nil {
-		return chnk, err
-	}
-
-	for _, c := range m {
-		if c.Id == id {
-			chnk = c
-			return chnk, nil
-		}
-	}
-
-	return chnk, errors.New("Not in db")
-}
-
-func SaveState(id uint64, players []myTypes.Player) error {
-	collection := mongoClient.Database("session").Collection("maps")
-	update := bson.M{
-		"$set": bson.D{{"players", players}},
-	}
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-	_, e1 := collection.UpdateOne(ctx, bson.D{{"_id", id}}, update, options.Update().SetUpsert(true))
-	log.Default().Println(e1)
-	return nil
-}
-
-func GetState(id uint64) ([]myTypes.Player, error) {
-	collection := mongoClient.Database("session").Collection("maps")
-	var m FullGameState
-	filter := bson.D{{"_id", id}}
-
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-	err := collection.FindOne(ctx, filter).Decode(&m)
-
-	return m.Players, err
+	err := collection.FindOne(ctx, filter).Decode(&model)
+	log.Default().Println("Atemting to retrevice.....")
+	log.Default().Println(err)
+	return model.Chnk, err
 }

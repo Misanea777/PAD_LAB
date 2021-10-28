@@ -7,7 +7,8 @@ import (
 	"strings"
 	"time"
 
-	"session/myTypes"
+	state "session/game/gameState"
+	mapSt "session/game/mapState"
 
 	"github.com/go-redis/cache/v8"
 	"github.com/go-redis/redis/v8"
@@ -18,13 +19,6 @@ var ctx context.Context
 
 func Init() {
 	ctx = context.TODO()
-	// ring := redis.NewRing(&redis.RingOptions{
-	// 	Addrs: map[string]string{
-	// 		"server1": ":6379",
-	// 		"server2": ":6380",
-	// 	},
-	// })
-
 	dsn := os.Getenv("REDIS_DSN")
 	if len(dsn) == 0 {
 		dsn = "sessionCache:6379"
@@ -45,7 +39,7 @@ func Init() {
 }
 
 type ChunkKey struct {
-	WordlId uint64
+	WordlId uint32
 	PosX    int64
 	PosY    int64
 }
@@ -60,13 +54,13 @@ func (ck ChunkKey) toString() string {
 	return sb.String()
 }
 
-func Store(key ChunkKey, obj myTypes.Chunk) error {
+func StoreChnk(key ChunkKey, obj mapSt.Chunk) error {
 	stringKey := key.toString()
 	if err := mycache.Set(&cache.Item{
 		Ctx:   ctx,
 		Key:   stringKey,
 		Value: obj,
-		TTL:   time.Second * 3,
+		TTL:   (time.Second * 3),
 	}); err != nil {
 		return err
 	}
@@ -74,9 +68,30 @@ func Store(key ChunkKey, obj myTypes.Chunk) error {
 	return nil
 }
 
-func Get(key ChunkKey) (myTypes.Chunk, error) {
+func GetChnk(key ChunkKey) (mapSt.Chunk, error) {
 	stringKey := key.toString()
-	var wanted myTypes.Chunk
+	var wanted mapSt.Chunk
+	err := mycache.Get(ctx, stringKey, &wanted)
+	return wanted, err
+}
+
+func StoreSt(state *state.GameState) error {
+	key := strconv.Itoa(int(state.Id))
+	if err := mycache.Set(&cache.Item{
+		Ctx:   ctx,
+		Key:   key,
+		Value: state,
+		TTL:   (time.Hour * 100),
+	}); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func GetSt(key uint64) (state.GameState, error) {
+	stringKey := strconv.Itoa(int(key))
+	var wanted state.GameState
 	err := mycache.Get(ctx, stringKey, &wanted)
 	return wanted, err
 }

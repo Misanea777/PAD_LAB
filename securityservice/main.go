@@ -15,12 +15,16 @@ func main() {
 	usersAPI := app.Party("/user")
 	usersAPI.Post("/register", controllers.Register)
 	usersAPI.Get("/login", controllers.Login)
+	usersAPI.Get("/auth", controllers.Auth)
+	usersAPI.Get("/status", controllers.EndpointStatus)
 
 	db.InitDB()
 	validators.InitValidator()
 	db.InitRedis()
-	time.Sleep(time.Second * 60)
+	time.Sleep(time.Second * 20)
 	db.PingEureka()
+
+	go db.CheckDBConnection()
 
 	app.Run(iris.Addr(":8090"))
 }

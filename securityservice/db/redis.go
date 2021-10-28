@@ -16,7 +16,10 @@ func InitRedis() {
 		dsn = "goRedis:6379"
 	}
 	RedisClient = redis.NewClient(&redis.Options{
-		Addr: dsn,
+		Addr:         dsn,
+		PoolSize:     20,
+		MinIdleConns: 10,
+		Password:     "password",
 	})
 	_, err := RedisClient.Ping().Result()
 	if err != nil {
@@ -38,4 +41,13 @@ func SaveToken(ID string, td *validators.TokenDetails) error {
 		return errRefresh
 	}
 	return nil
+}
+
+func FetchAuth(authD *validators.AccessDetails) (string, error) {
+	userid, err := RedisClient.Get(authD.AccessUuid).Result()
+	if err != nil {
+		return "", err
+	}
+
+	return userid, nil
 }

@@ -57,7 +57,7 @@ services:
 
   redis:
     image: redis
-    command: redis-server
+    command: redis-server --requirepass password
     container_name: goRedis
     ports:
       - 6379:6379
