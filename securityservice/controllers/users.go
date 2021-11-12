@@ -9,6 +9,8 @@ import (
 	"github.com/kataras/iris/v12"
 )
 
+var PlayingPlayers int
+
 func Register(ctx iris.Context) {
 	var (
 		user validators.UserCredentials
@@ -116,6 +118,8 @@ func Auth(ctx iris.Context) {
 		return
 	}
 
+	PlayingPlayers++
+
 	ctx.StatusCode(iris.StatusOK)
 	ctx.JSON(map[string]interface{}{
 		"status":  "success",
@@ -166,6 +170,16 @@ func EndpointStatus(ctx iris.Context) {
 			"users_count": count,
 			"mysql":       "up",
 			"redis":       "up",
+		},
+	})
+}
+
+func OnlinePlayers(ctx iris.Context) {
+	ctx.StatusCode(iris.StatusOK)
+	ctx.JSON(map[string]interface{}{
+		"status": "success",
+		"message": map[string]interface{}{
+			"current_playing_players": PlayingPlayers,
 		},
 	})
 }
