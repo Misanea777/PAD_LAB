@@ -17,6 +17,7 @@ func main() {
 	usersAPI.Get("/login", controllers.Login)
 	usersAPI.Get("/auth", controllers.Auth)
 	usersAPI.Get("/status", controllers.EndpointStatus)
+	usersAPI.Get("/count", controllers.OnlinePlayers)
 
 	db.InitDB()
 	validators.InitValidator()
