@@ -3,6 +3,7 @@ package db
 import (
 	"context"
 	"log"
+	state "session/game/gameState"
 	mapstate "session/game/mapState"
 	"time"
 
@@ -78,14 +79,8 @@ func UpdateChnk(id uint32, chnk mapstate.Chunk) error {
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	t, err := collection.UpdateOne(ctx, bson.M{"_id": model.Id}, update, options.Update().SetUpsert(true))
-	if t.MatchedCount == 0 && err == nil {
-		_, err = collection.InsertOne(ctx, model)
-	}
+	_, err := collection.UpdateOne(ctx, bson.M{"_id": model.Id}, update, options.Update().SetUpsert(true))
 	log.Default().Println("Atemting to save.....")
-	// log.Default().Println(t.MatchedCount)
-	log.Default().Println(id)
-	log.Default().Println(err)
 	return err
 }
 
@@ -101,4 +96,28 @@ func GetChnk(id uint32, chnkId mapstate.PosAsID) (mapstate.Chunk, error) {
 	log.Default().Println("Atemting to retrevice.....")
 	log.Default().Println(err)
 	return model.Chnk, err
+}
+
+func UpdateSt(gms *state.GameState) error {
+	collection := mongoClient.Database("session").Collection("games")
+
+	update := bson.M{
+		"$set": bson.M{"players": gms.Players},
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	_, err := collection.UpdateOne(ctx, bson.M{"_id": gms.Id}, update, options.Update().SetUpsert(true))
+	return err
+}
+
+func GetSt(id uint32) (state.GameState, error) {
+	var res state.GameState
+	collection := mongoClient.Database("session").Collection("games")
+	filter := bson.M{"_id": id}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	err := collection.FindOne(ctx, filter).Decode(&res)
+	return res, err
 }

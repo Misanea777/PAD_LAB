@@ -11,7 +11,6 @@ import (
 	"time"
 
 	"session/game/actions"
-	mapstate "session/game/mapState"
 )
 
 func main() {
@@ -20,7 +19,7 @@ func main() {
 	time.Sleep(time.Second * 10)
 	conn.PingEureka()
 
-	test()
+	// test()
 
 	mux.Init()
 
@@ -29,8 +28,11 @@ func main() {
 func test() {
 	gm := actions.NewGameState()
 	actions.JoinPlayer("misa", gm)
-	chnk := actions.GetChunk(gm.Id, mapstate.PosAsID{1, 0})
-	db.UpdateChnk(gm.Id, *chnk)
-	db.GetChnk(gm.Id, mapstate.PosAsID{0, 0})
-	log.Default().Println("HEREEEEEEEEE")
+	actions.JoinPlayer("grishsa", gm)
+	db.UpdateSt(gm)
+	res, err := db.GetSt(gm.Id)
+	if err != nil {
+		log.Default().Println(err)
+	}
+	log.Default().Println(len(res.Players))
 }

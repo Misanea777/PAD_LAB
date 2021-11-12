@@ -7,6 +7,9 @@ import (
 
 	"encoding/json"
 
+	"context"
+	"time"
+
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
 
@@ -15,6 +18,39 @@ import (
 	gamestate "session/game/gameState"
 	mapstate "session/game/mapState"
 )
+
+const taskLimit = 2
+
+var timeoutAt = 75 * time.Millisecond
+
+type limitHandler struct {
+	connc   chan struct{}
+	handler http.Handler
+}
+
+func (h *limitHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
+	select {
+	case <-h.connc:
+		defer func() { h.connc <- struct{}{} }()
+		ctx, cancel := context.WithTimeout(context.Background(), timeoutAt)
+		defer cancel()
+		h.handler.ServeHTTP(w, req.WithContext(ctx))
+
+	default:
+		http.Error(w, "503 too busy", http.StatusServiceUnavailable)
+	}
+}
+
+func NewLimitHandler(maxConns int, handler http.Handler) http.Handler {
+	h := &limitHandler{
+		connc:   make(chan struct{}, maxConns),
+		handler: handler,
+	}
+	for i := 0; i < maxConns; i++ {
+		h.connc <- struct{}{}
+	}
+	return h
+}
 
 var upgrader = websocket.Upgrader{} // use default options
 
@@ -25,12 +61,24 @@ func Init() {
 	port := 8081
 	s.HandleFunc("/create", createHandler).Methods("POST")
 	s.HandleFunc("/join", joinHandl).Methods("POST")
+	s.HandleFunc("/leave", leaveHandl).Methods("POST")
 	s.HandleFunc("/get/chunks", getChnkHandler).Methods("POST")
 	s.HandleFunc("/get/players", getPlHandle).Methods("POST")
 	s.HandleFunc("/update/player", updatePlHandle).Methods("POST")
 	s.Handle("/ss", http.RedirectHandler("https://9gag.com/", 302))
 	s.HandleFunc("/echo", echo)
-	http.ListenAndServe(fmt.Sprintf(":%v", port), rtr)
+
+	lmHandl := NewLimitHandler(taskLimit, rtr)
+	// http.ListenAndServe(fmt.Sprintf(":%v", port), lmHandl)
+
+	srv := &http.Server{
+		ReadTimeout:  5 * time.Second,
+		WriteTimeout: 10 * time.Second,
+		Handler:      http.TimeoutHandler(lmHandl, timeoutAt, "timeout!!!"),
+		Addr:         fmt.Sprintf(":%v", port),
+	}
+
+	srv.ListenAndServe()
 }
 
 func echo(w http.ResponseWriter, r *http.Request) {
@@ -60,6 +108,7 @@ type CreateReq struct {
 }
 
 func createHandler(w http.ResponseWriter, r *http.Request) {
+	time.Sleep(time.Minute)
 	var cReq CreateReq
 	err := json.NewDecoder(r.Body).Decode(&cReq)
 	if err != nil {
@@ -75,7 +124,7 @@ func createHandler(w http.ResponseWriter, r *http.Request) {
 
 type JoinReq struct {
 	Usnm      string
-	SessionId uint64
+	SessionId uint32
 }
 
 func joinHandl(w http.ResponseWriter, r *http.Request) {
@@ -86,19 +135,48 @@ func joinHandl(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	gm, err := cache.GetSt(joinReq.SessionId)
+	gm, err := actions.Getst(joinReq.SessionId)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+
 	pos, _ := actions.JoinPlayer(joinReq.Usnm, &gm)
 	resp, _ := json.Marshal(map[string]interface{}{"posX": pos.X, "posY": pos.Y})
 	w.Write([]byte(resp))
 }
 
+type LeaveReq struct {
+	Usnm      string
+	SessionId uint32
+}
+
+func leaveHandl(w http.ResponseWriter, r *http.Request) {
+	var leaveReq LeaveReq
+	err := json.NewDecoder(r.Body).Decode(&leaveReq)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	gm, err := cache.GetSt(leaveReq.SessionId)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	err = actions.LeavePlayer(leaveReq.Usnm, &gm)
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	fmt.Fprintf(w, "good")
+}
+
 type GetChnkReq struct {
 	Usnm      string
-	SessionId uint64
+	SessionId uint32
 	ChnksIds  []mapstate.PosAsID
 }
 
@@ -123,7 +201,7 @@ func getChnkHandler(w http.ResponseWriter, r *http.Request) {
 
 type GetPlReq struct {
 	Usnm      string
-	SessionId uint64
+	SessionId uint32
 }
 
 func getPlHandle(w http.ResponseWriter, r *http.Request) {
@@ -152,7 +230,7 @@ func getPlHandle(w http.ResponseWriter, r *http.Request) {
 
 type UpdatePlReq struct {
 	Usnm      string
-	SessionId uint64
+	SessionId uint32
 	Pos       gamestate.Pos
 }
 

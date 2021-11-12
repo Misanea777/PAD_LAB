@@ -4,6 +4,7 @@ import (
 	"log"
 	"math/rand"
 	"session/cache"
+	"session/db"
 	mapSt "session/game/mapState"
 )
 
@@ -12,6 +13,12 @@ func GetChunk(sessionId uint32, id mapSt.PosAsID) *mapSt.Chunk {
 	res, err := cache.GetChnk(key)
 	if err == nil {
 		log.Default().Println("found in cache")
+		return &res
+	}
+
+	res, err = db.GetChnk(sessionId, id)
+	if err == nil {
+		log.Default().Println("found in db")
 		return &res
 	}
 

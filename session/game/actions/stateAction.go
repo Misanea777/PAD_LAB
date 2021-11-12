@@ -3,6 +3,7 @@ package actions
 import (
 	"errors"
 	"session/cache"
+	"session/db"
 	state "session/game/gameState"
 	mapSt "session/game/mapState"
 )
@@ -19,9 +20,10 @@ func NewGameState() *state.GameState {
 }
 
 func JoinPlayer(usnm string, gms *state.GameState) (state.Pos, error) {
-	for _, player := range gms.Players {
+	for index, player := range gms.Players {
 		if usnm == player.Usnm {
-			player.Status = true
+			gms.Players[index].Status = true
+			cache.StoreSt(gms)
 			return player.PlayerPos, nil
 		}
 	}
@@ -31,11 +33,35 @@ func JoinPlayer(usnm string, gms *state.GameState) (state.Pos, error) {
 	return newPlayer.PlayerPos, nil
 }
 
+func LeavePlayer(usnm string, gms *state.GameState) error {
+	for index, player := range gms.Players {
+		if usnm == player.Usnm {
+			player.Status = false
+			gms.Players[index] = player
+			cache.StoreSt(gms)
+			checkIfAnyPlayersPresent(gms)
+			return nil
+		}
+	}
+	return errors.New("player not found")
+}
+
+func checkIfAnyPlayersPresent(gms *state.GameState) bool {
+	for _, player := range gms.Players {
+		if player.Status {
+			return true
+		}
+	}
+	cache.DeleteSt(gms.Id)
+	db.UpdateSt(gms)
+	return false
+}
+
 func FindPlayer(usnm string, gms *state.GameState) (state.Player, error) {
 	var p state.Player
 	for _, player := range gms.Players {
 		if usnm == player.Usnm {
-			player.Status = true
+			// player.Status = true
 			return player, nil
 		}
 	}
@@ -71,4 +97,18 @@ func GetChunks(ids []mapSt.PosAsID, gms *state.GameState) ([]mapSt.Chunk, error)
 		reqChunks = append(reqChunks, c)
 	}
 	return reqChunks, nil
+}
+
+func Getst(id uint32) (state.GameState, error) {
+	gm, err := cache.GetSt(id)
+	if err == nil {
+		return gm, nil
+	}
+
+	gm, err = db.GetSt(id)
+	if err == nil {
+		return gm, nil
+	}
+
+	return gm, err
 }

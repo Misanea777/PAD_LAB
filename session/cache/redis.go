@@ -89,9 +89,15 @@ func StoreSt(state *state.GameState) error {
 	return nil
 }
 
-func GetSt(key uint64) (state.GameState, error) {
+func GetSt(key uint32) (state.GameState, error) {
 	stringKey := strconv.Itoa(int(key))
 	var wanted state.GameState
 	err := mycache.Get(ctx, stringKey, &wanted)
 	return wanted, err
+}
+
+func DeleteSt(key uint32) error {
+	stringKey := strconv.Itoa(int(key))
+	err := mycache.Delete(ctx, stringKey)
+	return err
 }

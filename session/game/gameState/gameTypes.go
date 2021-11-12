@@ -1,17 +1,17 @@
 package gamestate
 
 type GameState struct {
-	Id      uint32
-	Players []Player
+	Id      uint32   `bson:"_id"`
+	Players []Player `bson:"players"`
 }
 
 type Pos struct {
-	X float64
-	Y float64
+	X float64 `bson:"x"`
+	Y float64 `bson:"y"`
 }
 
 type Player struct {
-	Usnm      string
+	Usnm      string `usnm:"id"`
 	PlayerPos Pos
-	Status    bool
+	Status    bool `status:"id"`
 }
