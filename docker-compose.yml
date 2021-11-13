@@ -10,6 +10,13 @@ services:
   #     - GIT_URL=https://github.com/maximums/PAD-config-server
   #     - GIT_USERNAME=
   #     - GIT_PASSWORD=
+  tesetService:
+    depends_on:
+      - discoveryServer
+    build: testservice/
+    image: testservice
+    environment:
+      - EUREKA_HOST=http://discoveryServer:8761/eureka/
   discoveryServer:
     build: discoveryserver/
     image: discoveryserver

@@ -1,0 +1,19 @@
+spring:
+  application:
+    name: test-service
+  cloud:
+    config:
+      uri: ${CONFIG_HOST}
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+server:
+  port: 0
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: ${EUREKA_HOST}
+  instance:
+    instance-id: ${spring.application.name}:${random.uuid}

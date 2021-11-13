@@ -1,10 +1,4 @@
 spring:
-  output:
-    ansi:
-      enabled: ALWAYS
-  jackson:
-    serialization:
-      indent_output: true
   application:
     name: gateway
   cloud:
@@ -14,6 +8,11 @@ spring:
           enabled: true
           lower-case-service-id: true
       routes:
+        - id: test-service
+          uri: lb://test-service
+          predicates:
+            - Path=/api/**
+
         - id: security-service
           uri: lb://security-service
           predicates:
@@ -27,6 +26,24 @@ spring:
             - name: Path
               args:
                 pattern: "/session/**"
+
+        - id: testing
+          uri: http://httpbin.org
+          predicates:
+            - Path=/get
+          filters:
+            - AddResponseHeader=Hello, World
+
+        - id: test_circuitbreaker
+          uri: http://httpbin.org
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: ciotkii_circuitbreaker
+                fallbackUri: forward:/welcome
+          predicates:
+            - Path=/delay/3
+
 eureka:
   instance:
     instance-id: ${spring.application.name}-${random.uuid}
@@ -34,96 +51,33 @@ eureka:
     serviceUrl:
       defaultZone: ${EUREKA_HOST}
 
-management:
-  endpoints:
-    web:
-      exposure:
-        include: '*'
-  endpoint:
-    health:
-      show-details: always
-  health:
-    diskspace:
-      enabled: true
-    circuitbreakers:
-      enabled: true
-    ratelimiters:
-      enabled: true
-  metrics:
-    tags:
-      application: ${spring.application.name}
-    distribution:
-      percentiles-histogram:
-        http:
-          server:
-            requests: true
-        resilience4j:
-          circuitbreaker:
-            calls: true
-info:
-  name: ${spring.application.name}
-  description: Gateway
-  environment: ${spring.profiles.active}
-  version: 0.0.1
-
-
 resilience4j:
   circuitbreaker:
     configs:
       default:
+        slidingWindowType: TIME_BASED
         registerHealthIndicator: true
         slidingWindowSize: 10
         minimumNumberOfCalls: 5
         permittedNumberOfCallsInHalfOpenState: 3
-        automaticTransitionFromOpenToHalfOpenEnabled: true
         waitDurationInOpenState: 5s
-        failureRateThreshold: 50
-        eventConsumerBufferSize: 10
-        recordExceptions:
-          - org.springframework.web.client.HttpServerErrorException
-          - java.util.concurrent.TimeoutException
-          - java.io.IOException
-      shared:
-        slidingWindowSize: 100
-        permittedNumberOfCallsInHalfOpenState: 30
-        waitDurationInOpenState: 1s
-        failureRateThreshold: 50
+        failureRateThreshold: 2
+        slowCallRateThreshold: 5
+        slowCallDurationThreshold: 1s
         eventConsumerBufferSize: 10
     metrics:
       enabled: true
     instances:
-      backendA:
+      ciotkii_circuitbreaker:
         baseConfig: default
         waitDurationInOpenState: 5000
   retry:
     configs:
       default:
+        failAfterMaxRetries: true
         maxAttempts: 3
-        waitDuration: 100
+        waitDuration: 100ms
         retryExceptions:
           - org.springframework.web.client.HttpServerErrorException
           - java.util.concurrent.TimeoutException
           - java.io.IOException
-  bulkhead:
-    configs:
-      default:
-        maxConcurrentCalls: 100
-  thread-pool-bulkhead:
-    configs:
-      default:
-        maxThreadPoolSize: 4
-        coreThreadPoolSize: 2
-        queueCapacity: 2
-  ratelimiter:
-    configs:
-      default:
-        registerHealthIndicator: false
-        limitForPeriod: 10
-        limitRefreshPeriod: 1s
-        timeoutDuration: 0
-        eventConsumerBufferSize: 100
-  timelimiter:
-    configs:
-      default:
-        cancelRunningFuture: false
-        timeoutDuration: 2s
