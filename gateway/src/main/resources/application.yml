@@ -15,6 +15,11 @@ spring:
 
         - id: security-service
           uri: lb://security-service
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: ciotkii_circuitbreaker
+                fallbackUri: forward:/welcome
           predicates:
             - name: Path
               args:
@@ -22,6 +27,11 @@ spring:
 
         - id: session-service
           uri: lb://session-service
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: ciotkii_circuitbreaker
+                fallbackUri: forward:/welcome
           predicates:
             - name: Path
               args:

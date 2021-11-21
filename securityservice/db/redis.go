@@ -1,6 +1,7 @@
 package db
 
 import (
+	"fmt"
 	"os"
 	"time"
 
@@ -25,6 +26,21 @@ func InitRedis() {
 	if err != nil {
 		panic(err.Error())
 	}
+	time.Sleep(10 * time.Second)
+	tmp := RedisClient.Conn().ClientSetName("client")
+	res, err := tmp.Result()
+	if err != nil {
+		panic(err.Error())
+	}
+
+	if res {
+		fmt.Println("/////////////////////////////////////////////////////////////////////")
+	}
+	res1 := RedisClient.ClientGetName().Name()
+	if err != nil {
+		panic(err.Error())
+	}
+	fmt.Println(res1)
 }
 
 func SaveToken(ID string, td *validators.TokenDetails) error {

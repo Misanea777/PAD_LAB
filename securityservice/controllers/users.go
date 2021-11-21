@@ -1,7 +1,9 @@
 package controllers
 
 import (
+	"fmt"
 	"log"
+	"time"
 
 	"github.com/PAD_LAB/db"
 	"github.com/PAD_LAB/models"
@@ -132,6 +134,10 @@ func EndpointStatus(ctx iris.Context) {
 		count int
 		err   error
 	)
+
+	res1 := db.RedisClient.ClientGetName().Name()
+	fmt.Println(res1)
+	time.Sleep(4 * time.Second)
 
 	count, err = models.GetRegisteredUsersNumber()
 	if err != nil {
