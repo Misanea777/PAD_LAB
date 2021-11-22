@@ -16,7 +16,7 @@ import (
 func main() {
 	db.Connect()
 	cache.Init()
-	time.Sleep(time.Second * 10)
+	time.Sleep(time.Second * 20)
 	conn.PingEureka()
 
 	// test()

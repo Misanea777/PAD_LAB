@@ -121,3 +121,14 @@ func GetSt(id uint32) (state.GameState, error) {
 	err := collection.FindOne(ctx, filter).Decode(&res)
 	return res, err
 }
+
+func GetAll() (int64, error) {
+	collection := mongoClient.Database("session").Collection("games")
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	filter := bson.M{"_id": `*`}
+	itemCount, err := collection.CountDocuments(ctx, filter)
+
+	return itemCount, err
+}

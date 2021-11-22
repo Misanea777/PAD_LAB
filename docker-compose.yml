@@ -74,9 +74,9 @@ services:
     build:
       context: session/
       dockerfile: Dockerfile
-    container_name: sessionService
-    ports:
-      - 8081:8081
+    # container_name: sessionService
+    # ports:
+    #   - 8081:8081
     restart: on-failure
     depends_on:
       - session_cache
@@ -100,6 +100,16 @@ services:
       - 27017:27017
     volumes:
       - mongodb_data_container:/data/db
+  
+  lobby:
+    build:
+      context: lobby/
+      dockerfile: Dockerfile
+    ports:
+      - 8084:8084
+    restart: on-failure
+    depends_on:
+      - session
 
 volumes:
   mongodb_data_container:

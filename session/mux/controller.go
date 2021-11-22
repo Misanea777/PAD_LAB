@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"net/rpc"
 
 	"encoding/json"
 
@@ -21,7 +22,7 @@ import (
 
 const taskLimit = 2
 
-var timeoutAt = 75 * time.Millisecond
+var timeoutAt = 75000 * time.Millisecond
 
 type limitHandler struct {
 	connc   chan struct{}
@@ -54,7 +55,28 @@ func NewLimitHandler(maxConns int, handler http.Handler) http.Handler {
 
 var upgrader = websocket.Upgrader{} // use default options
 
+type Args struct {
+	A, B int
+}
+
+type Arith int
+
+func (t *Arith) GetAll(args *Args, reply *int64) error {
+	*reply = actions.CountGames()
+	return nil
+}
+
 func Init() {
+	arith := new(Arith)
+	rpc.Register(arith)
+	rpc.HandleHTTP()
+	go func() {
+		err := http.ListenAndServe(":1234", nil)
+		if err != nil {
+			fmt.Println(err.Error())
+		}
+	}()
+
 	rtr := mux.NewRouter()
 	s := rtr.PathPrefix("/session").Subrouter()
 
@@ -108,7 +130,8 @@ type CreateReq struct {
 }
 
 func createHandler(w http.ResponseWriter, r *http.Request) {
-	time.Sleep(time.Minute)
+	// time.Sleep(time.Minute)
+	log.Default().Println("received")
 	var cReq CreateReq
 	err := json.NewDecoder(r.Body).Decode(&cReq)
 	if err != nil {

@@ -37,6 +37,18 @@ spring:
               args:
                 pattern: "/session/**"
 
+        - id: lobby-service
+          uri: lb://lobby-service
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: ciotkii_circuitbreaker
+                fallbackUri: forward:/welcome
+          predicates:
+            - name: Path
+              args:
+                pattern: "/lobby/**"
+
         - id: testing
           uri: http://httpbin.org
           predicates:

@@ -1,0 +1,6 @@
+github.com/gorilla/mux v1.8.0 h1:i40aqfkR1h2SlN9hojwV5ZA91wcXFOvkdNIeFDP5koI=
+github.com/gorilla/mux v1.8.0/go.mod h1:DVbg23sWSpFRCP0SfiEN6jmj59UnW/n46BH5rLB71So=
+github.com/xuanbo/eureka-client v0.0.3 h1:muQ1XRC6yJ57Eigkr2OOiT2g2UISMbEAaUNxaCo8I14=
+github.com/xuanbo/eureka-client v0.0.3/go.mod h1:89cTIVFpxXhoaty6VqLp5mntZSIE+lVDogWHudAOe+I=
+github.com/xuanbo/requests v0.0.1 h1:XAHmPKJOt+1KFt00tvbBG6rZRnazdtKxeYspr3zloVg=
+github.com/xuanbo/requests v0.0.1/go.mod h1:MfvizmCT21wr9poHF7/7DCQeTVhkeOjIDqk1LsetWBs=

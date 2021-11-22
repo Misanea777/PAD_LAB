@@ -14,7 +14,7 @@ func main() {
 
 	usersAPI := app.Party("/user")
 	usersAPI.Post("/register", controllers.Register)
-	usersAPI.Get("/login", controllers.Login)
+	usersAPI.Post("/login", controllers.Login)
 	usersAPI.Get("/auth", controllers.Auth)
 	usersAPI.Get("/status", controllers.EndpointStatus)
 	usersAPI.Get("/count", controllers.OnlinePlayers)

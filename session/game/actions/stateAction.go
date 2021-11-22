@@ -2,6 +2,7 @@ package actions
 
 import (
 	"errors"
+	"log"
 	"session/cache"
 	"session/db"
 	state "session/game/gameState"
@@ -111,4 +112,12 @@ func Getst(id uint32) (state.GameState, error) {
 	}
 
 	return gm, err
+}
+
+func CountGames() int64 {
+	count, err := db.GetAll()
+	if err != nil {
+		log.Default().Print(err)
+	}
+	return count
 }

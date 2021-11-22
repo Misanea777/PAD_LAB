@@ -2,8 +2,13 @@ package main
 
 import (
 	"lobby/cntrl"
+	"lobby/conn"
+	"time"
 )
 
 func main() {
-	cntrl.Test()
+	time.Sleep(time.Second * 20)
+	conn.PingEureka()
+
+	cntrl.Init()
 }
