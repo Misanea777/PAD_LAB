@@ -18,6 +18,8 @@ import (
 	"session/game/actions"
 	gamestate "session/game/gameState"
 	mapstate "session/game/mapState"
+
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 const taskLimit = 2
@@ -67,6 +69,12 @@ func (t *Arith) GetAll(args *Args, reply *int64) error {
 }
 
 func Init() {
+
+	// go func() {
+	// 	http.Handle("/metrics", promhttp.Handler())
+	// 	http.ListenAndServe(":2112", nil)
+	// }()
+
 	arith := new(Arith)
 	rpc.Register(arith)
 	rpc.HandleHTTP()
@@ -89,6 +97,7 @@ func Init() {
 	s.HandleFunc("/update/player", updatePlHandle).Methods("POST")
 	s.Handle("/ss", http.RedirectHandler("https://9gag.com/", 302))
 	s.HandleFunc("/echo", echo)
+	s.Handle("/metrics", promhttp.Handler())
 
 	lmHandl := NewLimitHandler(taskLimit, rtr)
 	// http.ListenAndServe(fmt.Sprintf(":%v", port), lmHandl)

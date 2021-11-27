@@ -14,4 +14,6 @@ EXPOSE 8081
 
 EXPOSE 1234
 
+EXPOSE 2112
+
 CMD ["./main"]
