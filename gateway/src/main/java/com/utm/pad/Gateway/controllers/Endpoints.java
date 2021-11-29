@@ -8,6 +8,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class Endpoints {
     @GetMapping("/welcome")
     public String welcome() {
-        return "Gateway welcome page";
+        return "Sorry service is temporarily unavailable";
     }
 }

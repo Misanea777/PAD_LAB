@@ -12,8 +12,8 @@ var EurekaClient *eureka_client.Client
 func PingEureka() {
 	client := eureka_client.NewClient(&eureka_client.Config{
 		DefaultZone:           "http://discoveryServer:8761/eureka/",
-		App:                   "security-service",
-		Port:                  8090,
+		App:                   "payment-service",
+		Port:                  8091,
 		RenewalIntervalInSecs: 10,
 		DurationInSecs:        30,
 		Metadata: map[string]interface{}{
@@ -31,5 +31,6 @@ func PingEureka() {
 	apps := client.Applications
 	b, _ := json.Marshal(apps)
 	fmt.Println(b)
+
 	EurekaClient = client
 }

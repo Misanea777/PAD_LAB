@@ -81,6 +81,17 @@ services:
   #     - db
   #     - redis
 
+  paymentservice:
+    build:
+      context: paymentservice/
+      dockerfile: Dockerfile
+    container_name: paymentservice
+    ports:
+      - 8091:8091
+    restart: on-failure
+    depends_on:
+      - db
+      - redis
 
   # redis:
   #   image: redis

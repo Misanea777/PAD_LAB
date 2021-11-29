@@ -11,7 +11,7 @@ spring:
         - id: test-service
           uri: lb://test-service
           predicates:
-            - Path=/api/**
+            - Path=/api/test
 
         - id: security-service
           uri: lb://security-service
@@ -25,13 +25,29 @@ spring:
               args:
                 pattern: "/user/**"
 
+        - id: payment-service
+          uri: lb://payment-service
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: ciotkii_circuitbreaker
+                fallbackUri: forward:/welcome
+          predicates:
+            - name: Path
+              args:
+                pattern: "/payment/**"
+
         - id: session-service
           uri: lb://session-service
           filters:
             - name: CircuitBreaker
               args:
                 name: ciotkii_circuitbreaker
-                fallbackUri: forward:/welcome
+                fallbackUri: forward:/session/**
+                statusCodes:
+                  - 404
+                  - 503
+                  - 504
           predicates:
             - name: Path
               args:
@@ -77,14 +93,14 @@ resilience4j:
   circuitbreaker:
     configs:
       default:
-        slidingWindowType: TIME_BASED
+        slidingWindowType: COUNT_BASED
         registerHealthIndicator: true
-        slidingWindowSize: 10
-        minimumNumberOfCalls: 5
-        permittedNumberOfCallsInHalfOpenState: 3
+        slidingWindowSize: 3
+        minimumNumberOfCalls: 1
+        permittedNumberOfCallsInHalfOpenState: 1
         waitDurationInOpenState: 5s
-        failureRateThreshold: 2
-        slowCallRateThreshold: 5
+        failureRateThreshold: 1
+        slowCallRateThreshold: 1
         slowCallDurationThreshold: 1s
         eventConsumerBufferSize: 10
     metrics:

@@ -86,3 +86,40 @@ func GetRegisteredUsersNumber() (int, error) {
 
 	return count, nil
 }
+
+func GetUserBalance(userID string) (*validators.UserBalanceInfo, error) {
+	var userBalance validators.UserBalanceInfo
+	q := `
+		SELECT ID, Balance FROM Users WHERE ID = ?
+	`
+
+	res := db.Mysql.QueryRow(q, userID)
+	err := res.Scan(&userBalance.ID, &userBalance.Balance)
+	if err != nil {
+		return nil, err
+	}
+
+	return &userBalance, nil
+}
+
+func UpdateUserBalance(userID string, amount int) error {
+	q := `
+		UPDATE Users
+		SET Balance=Balance + ?
+		WHERE ID = ?
+	`
+
+	res, err := db.Mysql.Exec(q, amount, userID)
+	affected, exc := res.RowsAffected()
+
+	switch {
+	case err != nil:
+		return err
+	case exc != nil:
+		return exc
+	case affected == 0:
+		return errors.New("no rows affected when updating the balance")
+	}
+
+	return nil
+}

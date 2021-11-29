@@ -41,3 +41,8 @@ type AccessDetails struct {
 	AccessUuid string
 	UserUuid   string
 }
+
+type UserBalanceInfo struct {
+	ID      string `json:"id"`
+	Balance int    `json:"balance"`
+}
