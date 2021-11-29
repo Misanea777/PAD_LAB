@@ -70,11 +70,6 @@ func (t *Arith) GetAll(args *Args, reply *int64) error {
 
 func Init() {
 
-	// go func() {
-	// 	http.Handle("/metrics", promhttp.Handler())
-	// 	http.ListenAndServe(":2112", nil)
-	// }()
-
 	arith := new(Arith)
 	rpc.Register(arith)
 	rpc.HandleHTTP()
@@ -100,7 +95,6 @@ func Init() {
 	s.Handle("/metrics", promhttp.Handler())
 
 	lmHandl := NewLimitHandler(taskLimit, rtr)
-	// http.ListenAndServe(fmt.Sprintf(":%v", port), lmHandl)
 
 	srv := &http.Server{
 		ReadTimeout:  5 * time.Second,
@@ -149,7 +143,7 @@ func createHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	gm := actions.NewGameState()
-	pos, _ := actions.JoinPlayer(cReq.Usnm, gm)
+	pos, _ := actions.CreateAndSaveGameState(cReq.Usnm, gm)
 	resp, _ := json.Marshal(map[string]interface{}{"id": gm.Id, "posX": pos.X, "posY": pos.Y})
 	w.Write([]byte(resp))
 }

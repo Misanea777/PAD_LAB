@@ -20,6 +20,13 @@ func NewGameState() *state.GameState {
 	return gms
 }
 
+func CreateAndSaveGameState(usnm string, gm *state.GameState) (state.Pos, error) {
+	pos, err := JoinPlayer(usnm, gm)
+	dberr := db.UpdateSt(gm)
+	log.Default().Println(dberr)
+	return pos, err
+}
+
 func JoinPlayer(usnm string, gms *state.GameState) (state.Pos, error) {
 	for index, player := range gms.Players {
 		if usnm == player.Usnm {
@@ -103,13 +110,15 @@ func GetChunks(ids []mapSt.PosAsID, gms *state.GameState) ([]mapSt.Chunk, error)
 func Getst(id uint32) (state.GameState, error) {
 	gm, err := cache.GetSt(id)
 	if err == nil {
-		return gm, nil
+		// return gm, nil
 	}
 
 	gm, err = db.GetSt(id)
 	if err == nil {
 		return gm, nil
 	}
+
+	log.Default().Println(err)
 
 	return gm, err
 }

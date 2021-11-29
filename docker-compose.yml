@@ -12,31 +12,31 @@ services:
   #     - GIT_PASSWORD=
 
 
-  prometheus:
-    image: prom/prometheus:latest
-    container_name: prometheus
-    ports:
-    - 9090:9090
-    command:
-    - --config.file=/etc/prometheus/prometheus.yml
-    volumes:
-    - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+  # prometheus:
+  #   image: prom/prometheus:latest
+  #   container_name: prometheus
+  #   ports:
+  #   - 9090:9090
+  #   command:
+  #   - --config.file=/etc/prometheus/prometheus.yml
+  #   volumes:
+  #   - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
   
-  grafana:
-    image: grafana/grafana:5.1.0
-    depends_on:
-      - prometheus
-    ports:
-      - 3000:3000
-    user: '104'
+  # grafana:
+  #   image: grafana/grafana:5.1.0
+  #   depends_on:
+  #     - prometheus
+  #   ports:
+  #     - 3000:3000
+  #   user: '104'
 
-  tesetService:
-    depends_on:
-      - discoveryServer
-    build: testservice/
-    image: testservice
-    environment:
-      - EUREKA_HOST=http://discoveryServer:8761/eureka/
+  # tesetService:
+  #   depends_on:
+  #     - discoveryServer
+  #   build: testservice/
+  #   image: testservice
+  #   environment:
+  #     - EUREKA_HOST=http://discoveryServer:8761/eureka/
   discoveryServer:
     build: discoveryserver/
     image: discoveryserver
@@ -53,41 +53,41 @@ services:
       - "8080:8080"
     environment:
       - EUREKA_HOST=http://discoveryServer:8761/eureka/
-  db:
-    image: mysql
-    container_name: goDB
-    command: --default-authentication-plugin=mysql_native_password --skip-name-resolve
-    restart: always
-    volumes:
-      - ./volume:/var/lib/minesql
-    environment:
-      MYSQL_ROOT_PASSWORD: "root"
-      MYSQL_USER: "docker"
-      MYSQL_PASSWORD: "password"
-      MYSQL_DATABASE: "users"
-    ports:
-      - 3306:3306
+  # db:
+  #   image: mysql
+  #   container_name: goDB
+  #   command: --default-authentication-plugin=mysql_native_password --skip-name-resolve
+  #   restart: always
+  #   volumes:
+  #     - ./volume:/var/lib/minesql
+  #   environment:
+  #     MYSQL_ROOT_PASSWORD: "root"
+  #     MYSQL_USER: "docker"
+  #     MYSQL_PASSWORD: "password"
+  #     MYSQL_DATABASE: "users"
+  #   ports:
+  #     - 3306:3306
   
 
-  app:
-    build:
-      context: securityservice/
-      dockerfile: Dockerfile
-    container_name: securityService
-    ports:
-      - 8090:8090
-    restart: on-failure
-    depends_on: 
-      - db
-      - redis
+  # app:
+  #   build:
+  #     context: securityservice/
+  #     dockerfile: Dockerfile
+  #   container_name: securityService
+  #   ports:
+  #     - 8090:8090
+  #   restart: on-failure
+  #   depends_on: 
+  #     - db
+  #     - redis
 
 
-  redis:
-    image: redis
-    command: redis-server --requirepass password
-    container_name: goRedis
-    ports:
-      - 6379:6379
+  # redis:
+  #   image: redis
+  #   command: redis-server --requirepass password
+  #   container_name: goRedis
+  #   ports:
+  #     - 6379:6379
   
 
   session:
@@ -100,7 +100,7 @@ services:
     restart: on-failure
     depends_on:
       - session_cache
-      - mongodb_container
+      - mongodb-primary
 
   session_cache:
     image: redis
@@ -109,30 +109,68 @@ services:
     ports:
       - 8082:6379
 
-  mongodb_container:
-    image: mongo:latest
-    container_name: mongodb
-    restart: on-failure
-    # environment:
-    #   MONGO_INITDB_ROOT_USERNAME: root
-    #   MONGO_INITDB_ROOT_PASSWORD: rootpassword
-    ports:
-      - 27017:27017
-    volumes:
-      - mongodb_data_container:/data/db
+  # mongodb_container:
+  #   image: mongo:latest
+  #   container_name: mongodb
+  #   restart: on-failure
+  #   # environment:
+  #   #   MONGO_INITDB_ROOT_USERNAME: root
+  #   #   MONGO_INITDB_ROOT_PASSWORD: rootpassword
+  #   ports:
+  #     - 27017:27017
+  #   volumes:
+  #     - mongodb_data_container:/data/db
   
-  lobby:
-    build:
-      context: lobby/
-      dockerfile: Dockerfile
-    ports:
-      - 8084:8084
-    restart: on-failure
+  # lobby:
+  #   build:
+  #     context: lobby/
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - 8084:8084
+  #   restart: on-failure
+  #   depends_on:
+  #     - session
+
+
+  mongodb-primary:
+    image: 'bitnami/mongodb:latest'
+    environment:
+      - MONGODB_ADVERTISED_HOSTNAME=mongodb-primary
+      - MONGODB_REPLICA_SET_MODE=primary
+      - MONGODB_ROOT_PASSWORD=password123
+      # - ALLOW_EMPTY_PASSWORD=yes
+      - MONGODB_REPLICA_SET_KEY=replicasetkey123
+
+    volumes:
+      - 'mongodb_master_data:/bitnami'
+
+  mongodb-secondary:
+    image: 'bitnami/mongodb:latest'
     depends_on:
-      - session
+      - mongodb-primary
+    environment:
+      - MONGODB_ADVERTISED_HOSTNAME=mongodb-secondary
+      - MONGODB_REPLICA_SET_MODE=secondary
+      - MONGODB_INITIAL_PRIMARY_HOST=mongodb-primary
+      - MONGODB_INITIAL_PRIMARY_PORT_NUMBER=27017
+      - MONGODB_INITIAL_PRIMARY_ROOT_PASSWORD=password123
+      - MONGODB_REPLICA_SET_KEY=replicasetkey123
+
+  mongodb-arbiter:
+    image: 'bitnami/mongodb:latest'
+    depends_on:
+      - mongodb-primary
+    environment:
+      - MONGODB_ADVERTISED_HOSTNAME=mongodb-arbiter
+      - MONGODB_REPLICA_SET_MODE=arbiter
+      - MONGODB_INITIAL_PRIMARY_HOST=mongodb-primary
+      - MONGODB_INITIAL_PRIMARY_PORT_NUMBER=27017
+      - MONGODB_INITIAL_PRIMARY_ROOT_PASSWORD=password123
+      - MONGODB_REPLICA_SET_KEY=replicasetkey123
 
 volumes:
-  mongodb_data_container:
+  mongodb_master_data:
+    driver: local
 
 
 

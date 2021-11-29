@@ -24,7 +24,7 @@ var mongoClient *mongo.Client
 func Connect() {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI("mongodb://mongodb:27017"))
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI("mongodb://root:password123@mongodb-primary:27017/?replicaSet=replicaset"))
 
 	if err != nil {
 		log.Printf("could not connect with mongodb:  %v", err)
@@ -38,7 +38,8 @@ func Connect() {
 		err = client.Ping(ctx, readpref.Primary())
 		if err != nil {
 			log.Default().Println("db not up, wait 10 sec")
-			time.Sleep(5 * time.Second)
+			log.Default().Println(err)
+			time.Sleep(10 * time.Second)
 			continue
 		} else {
 			break
@@ -108,17 +109,22 @@ func UpdateSt(gms *state.GameState) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	_, err := collection.UpdateOne(ctx, bson.M{"_id": gms.Id}, update, options.Update().SetUpsert(true))
+	log.Default().Println("here!!!!!")
+	log.Default().Println(err)
 	return err
 }
 
 func GetSt(id uint32) (state.GameState, error) {
 	var res state.GameState
-	collection := mongoClient.Database("session").Collection("games")
+	secondary := readpref.Secondary()
+	dbOpts := options.Database().SetReadPreference(secondary)
+	collection := mongoClient.Database("session", dbOpts).Collection("games")
 	filter := bson.M{"_id": id}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	err := collection.FindOne(ctx, filter).Decode(&res)
+	log.Default().Println(err)
 	return res, err
 }
 

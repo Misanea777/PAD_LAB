@@ -1,7 +1,6 @@
 package main
 
 import (
-	"log"
 	"session/cache"
 	"session/conn"
 	"session/db"
@@ -9,8 +8,6 @@ import (
 	"session/mux"
 
 	"time"
-
-	"session/game/actions"
 )
 
 func main() {
@@ -26,13 +23,5 @@ func main() {
 }
 
 func test() {
-	gm := actions.NewGameState()
-	actions.JoinPlayer("misa", gm)
-	actions.JoinPlayer("grishsa", gm)
-	db.UpdateSt(gm)
-	res, err := db.GetSt(gm.Id)
-	if err != nil {
-		log.Default().Println(err)
-	}
-	log.Default().Println(len(res.Players))
+	// db.UpdateSt()
 }
