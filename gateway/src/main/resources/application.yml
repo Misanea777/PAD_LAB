@@ -25,6 +25,18 @@ spring:
               args:
                 pattern: "/user/**"
 
+        - id: payment-service
+          uri: lb://payment-service
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: ciotkii_circuitbreaker
+                fallbackUri: forward:/welcome
+          predicates:
+            - name: Path
+              args:
+                pattern: "/payment/**"
+
         - id: session-service
           uri: lb://session-service
           filters:

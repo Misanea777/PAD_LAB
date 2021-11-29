@@ -18,6 +18,8 @@ func main() {
 	usersAPI.Get("/auth", controllers.Auth)
 	usersAPI.Get("/status", controllers.EndpointStatus)
 	usersAPI.Get("/count", controllers.OnlinePlayers)
+	usersAPI.Post("/payment", controllers.BalanceTransaction)
+	usersAPI.Post("/payment/confirm", controllers.PaymentConfirm)
 
 	db.InitDB()
 	validators.InitValidator()

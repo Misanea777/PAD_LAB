@@ -3,23 +3,18 @@ package db
 import (
 	"context"
 	"database/sql"
-	"flag"
 	"fmt"
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
 )
 
-var Mysql *sql.DB
-var dbname = "users"
+var (
+	paymentDBName = "payments"
+	MySQL         *sql.DB
+)
 
 func InitDB() {
-	// var (
-	// 	migrationDir = flag.String("migration.files", "./migrations", "Directory where the migration files are located?")
-	// )
-
-	flag.Parse()
-
 	db, _ := sql.Open("mysql", "root:root@tcp(goDB)/")
 	for {
 		err := db.Ping()
@@ -34,7 +29,8 @@ func InitDB() {
 
 	ctx, cancelfunc := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancelfunc()
-	res, err := db.ExecContext(ctx, "CREATE DATABASE IF NOT EXISTS "+dbname)
+
+	res, err := db.ExecContext(ctx, "CREATE DATABASE IF NOT EXISTS "+paymentDBName)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -44,32 +40,33 @@ func InitDB() {
 	}
 	db.Close()
 
-	db, err = sql.Open("mysql", "root:root@tcp(goDB)/users")
+	db, err = sql.Open("mysql", "root:root@tcp(goDB)/payments")
 	if err != nil {
 		panic(err.Error())
 	}
 	db.SetMaxOpenConns(10)
 	db.SetMaxIdleConns(10)
 
-	err = SelfMadeShittyTransaction(db)
+	err = PaymentSelfMadeShitTransaction(db)
 	if err != nil {
 		panic(err.Error())
 	}
 
-	Mysql = db
+	MySQL = db
 }
 
-func SelfMadeShittyTransaction(sql *sql.DB) error {
+func PaymentSelfMadeShitTransaction(sql *sql.DB) error {
 	q := `
-	CREATE TABLE IF NOT EXISTS
-	Users(
-		ID VARCHAR(255) primary key DEFAULT (uuid()),
-		Username Text NOT NULL,
-		Password Text NOT NULL,
-		DateCreated INT DEFAULT (unix_timestamp()),
-		Balance int NOT NULL DEFAULT 0
-	)
+		CREATE TABLE IF NOT EXISTS
+		Payments(
+			ID VARCHAR(255) primary key DEFAULT (uuid()),
+			UserID Text NOT NULL,
+			Amount int NOT NULL,
+			DateCreated INT DEFAULT (unix_timestamp()),
+			Status VARCHAR(16) NOT NULL
+		)
 	`
+
 	ctx, cancelfunc := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancelfunc()
 
@@ -79,17 +76,4 @@ func SelfMadeShittyTransaction(sql *sql.DB) error {
 	}
 
 	return nil
-}
-
-func CheckDBConnection() {
-	for {
-		err := Mysql.Ping()
-		if err != nil {
-			fmt.Println("db down, try to reconnect...")
-			InitDB()
-		}
-		fmt.Println("dp up, sleep 30s...")
-
-		time.Sleep(30 * time.Second)
-	}
 }
