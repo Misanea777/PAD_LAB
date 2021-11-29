@@ -29,6 +29,7 @@ func CreateAndSaveGameState(usnm string, gm *state.GameState) (state.Pos, error)
 
 func JoinPlayer(usnm string, gms *state.GameState) (state.Pos, error) {
 	for index, player := range gms.Players {
+		log.Default().Println("scua")
 		if usnm == player.Usnm {
 			gms.Players[index].Status = true
 			cache.StoreSt(gms)
