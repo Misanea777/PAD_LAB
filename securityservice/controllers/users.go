@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"time"
+	// "time"
 
 	"github.com/PAD_LAB/db"
 	"github.com/PAD_LAB/models"
@@ -140,7 +140,7 @@ func EndpointStatus(ctx iris.Context) {
 
 	res1 := db.RedisClient.ClientGetName().Name()
 	fmt.Println(res1)
-	time.Sleep(4 * time.Second)
+	// time.Sleep(4 * time.Second)
 
 	count, err = models.GetRegisteredUsersNumber()
 	if err != nil {
