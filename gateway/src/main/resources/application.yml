@@ -88,7 +88,7 @@ resilience4j:
   circuitbreaker:
     configs:
       default:
-        slidingWindowType: TIME_BASED
+        slidingWindowType: COUNT_BASED
         registerHealthIndicator: true
         slidingWindowSize: 10
         minimumNumberOfCalls: 5

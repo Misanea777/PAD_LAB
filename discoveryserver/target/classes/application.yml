@@ -1,56 +1,16 @@
----
-# This default profile is used when running a single instance completely standalone:
-spring:
-  profiles: default
 server:
-  port: 9000  
-eureka:
-  instance:
-    hostname: default-eureka-server.com
-  client:
-    registerWithEureka: false
-    fetchRegistry: false
-    serviceUrl:
-      defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka/ 
+  port: 8761
 
----
-spring:
-  profiles: peer-1
-  application:
-    name: eureka-server-clustered
-server:
-  port: 9001  
-eureka:  
-  client:
-    registerWithEureka: true
-    fetchRegistry: true       
-    serviceUrl:
-      defaultZone: ${EUREKA_HOST_PEER_2},${EUREKA_HOST_PEER_3}
-
----
-spring:
-  profiles: peer-2
-  application:
-    name: eureka-server-clustered   
-server:
-  port: 9002
-eureka:    
-  client:
-    registerWithEureka: true
-    fetchRegistry: true       
-    serviceUrl:
-      defaultZone: ${EUREKA_HOST_PEER_1},${EUREKA_HOST_PEER_3}
-
----
-spring:
-  profiles: peer-3
-  application:
-    name: eureka-server-clustered  
-server:
-  port: 9003
 eureka:
   client:
-    registerWithEureka: true
-    fetchRegistry: true   
+    register-with-eureka: false
+    fetch-registry: false
     serviceUrl:
-      defaultZone: ${EUREKA_HOST_PEER_1},${EUREKA_HOST_PEER_2}
+      defaultZone: ${EUREKA_HOST}
+
+logging:
+  level:
+    com:
+      netflix:
+        eureka: OFF
+        discovery: OFF
