@@ -24,7 +24,7 @@ import (
 
 const taskLimit = 2
 
-var timeoutAt = 7500 * time.Millisecond
+var timeoutAt = 750 * time.Millisecond
 
 type limitHandler struct {
 	connc   chan struct{}

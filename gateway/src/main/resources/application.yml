@@ -11,7 +11,7 @@ spring:
         - id: test-service
           uri: lb://test-service
           predicates:
-            - Path=/api/test
+            - Path=/api/**
 
         - id: security-service
           uri: lb://security-service
@@ -25,29 +25,13 @@ spring:
               args:
                 pattern: "/user/**"
 
-        - id: payment-service
-          uri: lb://payment-service
-          filters:
-            - name: CircuitBreaker
-              args:
-                name: ciotkii_circuitbreaker
-                fallbackUri: forward:/welcome
-          predicates:
-            - name: Path
-              args:
-                pattern: "/payment/**"
-
         - id: session-service
           uri: lb://session-service
           filters:
             - name: CircuitBreaker
               args:
                 name: ciotkii_circuitbreaker
-                fallbackUri: forward:/session/**
-                statusCodes:
-                  - 404
-                  - 503
-                  - 504
+                fallbackUri: forward:/welcome
           predicates:
             - name: Path
               args:
@@ -81,6 +65,17 @@ spring:
                 fallbackUri: forward:/welcome
           predicates:
             - Path=/delay/3
+        - id: payment-service
+          uri: lb://payment-service
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: ciotkii_circuitbreaker
+                fallbackUri: forward:/welcome
+          predicates:
+            - name: Path
+              args:
+                pattern: "/payment/**"
 
 eureka:
   instance:
@@ -93,14 +88,14 @@ resilience4j:
   circuitbreaker:
     configs:
       default:
-        slidingWindowType: COUNT_BASED
+        slidingWindowType: TIME_BASED
         registerHealthIndicator: true
-        slidingWindowSize: 3
-        minimumNumberOfCalls: 1
-        permittedNumberOfCallsInHalfOpenState: 1
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        permittedNumberOfCallsInHalfOpenState: 3
         waitDurationInOpenState: 5s
-        failureRateThreshold: 1
-        slowCallRateThreshold: 1
+        failureRateThreshold: 2
+        slowCallRateThreshold: 5
         slowCallDurationThreshold: 1s
         eventConsumerBufferSize: 10
     metrics:

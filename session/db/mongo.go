@@ -24,7 +24,7 @@ var mongoClient *mongo.Client
 func Connect() {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI("mongodb://root:password123@mongodb-primary:27017/?replicaSet=replicaset"))
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI("mongodb://root:password123@mongodb-primary:27017,mongodb-secondary:27017/?replicaSet=replicaset").SetReadPreference(readpref.Secondary()))
 
 	if err != nil {
 		log.Printf("could not connect with mongodb:  %v", err)
@@ -99,14 +99,27 @@ func GetChnk(id uint32, chnkId mapstate.PosAsID) (mapstate.Chunk, error) {
 	return model.Chnk, err
 }
 
+func test() {
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+
+	res := mongoClient.Database("admin").RunCommand(ctx, bson.D{{"replSetGetStatus", 1}}, options.RunCmd().SetReadPreference(readpref.Secondary()))
+	dec, err := res.DecodeBytes()
+	if err != nil {
+		log.Default().Println(err)
+	}
+	log.Default().Println(dec.Lookup("myState").String())
+}
+
 func UpdateSt(gms *state.GameState) error {
+	test()
 	collection := mongoClient.Database("session").Collection("games")
 
 	update := bson.M{
 		"$set": bson.M{"players": gms.Players},
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()
 	_, err := collection.UpdateOne(ctx, bson.M{"_id": gms.Id}, update, options.Update().SetUpsert(true))
 	log.Default().Println("here!!!!!")
