@@ -84,6 +84,7 @@ func Init() {
 	s := rtr.PathPrefix("/session").Subrouter()
 
 	port := 8081
+	s.HandleFunc("/reg", mishaLoliEnjoyer).Methods("POST")
 	s.HandleFunc("/create", createHandler).Methods("POST")
 	s.HandleFunc("/join", joinHandl).Methods("POST")
 	s.HandleFunc("/leave", leaveHandl).Methods("POST")
@@ -145,6 +146,20 @@ func createHandler(w http.ResponseWriter, r *http.Request) {
 	gm := actions.NewGameState()
 	pos, _ := actions.CreateAndSaveGameState(cReq.Usnm, gm)
 	resp, _ := json.Marshal(map[string]interface{}{"id": gm.Id, "posX": pos.X, "posY": pos.Y})
+	w.Write([]byte(resp))
+}
+
+func mishaLoliEnjoyer(w http.ResponseWriter, r *http.Request) {
+	// time.Sleep(time.Minute)
+	log.Default().Println("received")
+	var cReq CreateReq
+	err := json.NewDecoder(r.Body).Decode(&cReq)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	resp, _ := json.Marshal(map[string]interface{}{"message": "Loli is successfully lewded"})
 	w.Write([]byte(resp))
 }
 
