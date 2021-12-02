@@ -1,0 +1,130 @@
+spring:
+  application:
+    name: gateway
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+      routes:
+        - id: test-service
+          uri: lb://test-service
+          predicates:
+            - Path=/api/test
+
+        - id: security-service
+          uri: lb://security-service
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: ciotkii_circuitbreaker
+                fallbackUri: forward:/welcome
+          predicates:
+            - name: Path
+              args:
+                pattern: "/user/**"
+
+        - id: payment-service
+          uri: lb://payment-service
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: ciotkii_circuitbreaker
+                fallbackUri: forward:/welcome
+          predicates:
+            - name: Path
+              args:
+                pattern: "/payment/**"
+
+        - id: session-service
+          uri: lb://session-service
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: ciotkii_circuitbreaker
+                fallbackUri: forward:/session/**
+                statusCodes:
+                  - 404
+                  - 503
+                  - 504
+          predicates:
+            - name: Path
+              args:
+                pattern: "/session/**"
+
+        - id: lobby-service
+          uri: lb://lobby-service
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: ciotkii_circuitbreaker
+                fallbackUri: forward:/welcome
+          predicates:
+            - name: Path
+              args:
+                pattern: "/lobby/**"
+
+        - id: testing
+          uri: http://httpbin.org
+          predicates:
+            - Path=/get
+          filters:
+            - AddResponseHeader=Hello, World
+
+        - id: test_circuitbreaker
+          uri: http://httpbin.org
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: ciotkii_circuitbreaker
+                fallbackUri: forward:/welcome
+          predicates:
+            - Path=/delay/3
+
+eureka:
+  instance:
+    instance-id: ${spring.application.name}-${random.uuid}
+  client:
+    serviceUrl:
+      defaultZone: ${EUREKA_HOST}
+
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        slidingWindowType: TIME_BASED
+        registerHealthIndicator: true
+        slidingWindowSize: 3
+        minimumNumberOfCalls: 1
+        permittedNumberOfCallsInHalfOpenState: 1
+        waitDurationInOpenState: 5s
+        failureRateThreshold: 1
+        slowCallRateThreshold: 1
+        slowCallDurationThreshold: 1s
+        eventConsumerBufferSize: 10
+    metrics:
+      enabled: true
+    instances:
+      ciotkii_circuitbreaker:
+        baseConfig: default
+        waitDurationInOpenState: 5000
+  retry:
+    configs:
+      default:
+        failAfterMaxRetries: true
+        maxAttempts: 3
+        waitDuration: 100ms
+        retryExceptions:
+          - org.springframework.web.client.HttpServerErrorException
+          - java.util.concurrent.TimeoutException
+          - java.io.IOException
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always

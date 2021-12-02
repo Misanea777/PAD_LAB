@@ -1,0 +1,8 @@
+server:
+  port: ${SERVER_PORT}  
+eureka:  
+  client:
+    registerWithEureka: true
+    fetchRegistry: true       
+    serviceUrl:
+      defaultZone: ${EUREKA_HOST_PEER_1},${EUREKA_HOST_PEER_2}
