@@ -36,23 +36,44 @@ services:
     build: testservice/
     image: testservice
     environment:
-      - EUREKA_HOST=http://discoveryServer:8761/eureka/
+      - EUREKA_HOST=http://discoveryServer2:9003/eureka/
   discoveryServer:
-    build: discoveryserver/
+    build: discPeer1/
     image: discoveryserver
     ports:
-      - "8761:8761"
+      - "9001:9001"
     environment:
-      - EUREKA_HOST=http://discoveryServer:8761/eureka/
-  gateway:
+      - EUREKA_HOST_PEER_1=http://discoveryServer1:9002/eureka/
+      - EUREKA_HOST_PEER_2=http://discoveryServer2:9003/eureka/
+  discoveryServer1:
     depends_on:
       - discoveryServer
+    build: discPeer2/
+    image: discoveryserver1
+    ports:
+      - "9002:9002"
+    environment:
+      - EUREKA_HOST_PEER_1=http://discoveryServer:9001/eureka/
+      - EUREKA_HOST_PEER_2=http://discoveryServer2:9003/eureka/
+  discoveryServer2:
+    depends_on:
+      - discoveryServer
+    build: discPeer3/
+    image: discoveryserver2
+    ports:
+      - "9003:9003"
+    environment:
+      - EUREKA_HOST_PEER_1=http://discoveryServer:9001/eureka/
+      - EUREKA_HOST_PEER_2=http://discoveryServer1:9002/eureka/
+  gateway:
+    depends_on:
+      - discoveryServer2
     build: gateway/
     image: gateway
     ports:
       - "8080:8080"
     environment:
-      - EUREKA_HOST=http://discoveryServer:8761/eureka/
+      - EUREKA_HOST=http://discoveryServer2:9003/eureka/
   db:
     image: mysql
     container_name: goDB
@@ -182,11 +203,3 @@ services:
 volumes:
   mongodb_master_data:
     driver: local
-
-
-
-      
-
-
-
-  

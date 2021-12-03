@@ -1,16 +1,8 @@
 server:
-  port: 8761
-
+  port: 9003 
 eureka:
   client:
-    register-with-eureka: false
-    fetch-registry: false
+    registerWithEureka: true
+    fetchRegistry: true       
     serviceUrl:
-      defaultZone: ${EUREKA_HOST}
-
-logging:
-  level:
-    com:
-      netflix:
-        eureka: OFF
-        discovery: OFF
+      defaultZone: ${EUREKA_HOST_PEER_1},${EUREKA_HOST_PEER_2}
