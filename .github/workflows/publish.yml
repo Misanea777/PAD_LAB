@@ -67,7 +67,7 @@ jobs:
       with:
         context: lobby/
         push: true
-        tags: miha/distr_game.lobby_service:latest
+        tags: misanea777/distr_game.lobby_service:latest
 
     # - name: Deploy APIService
     #   uses: dawidd6/action-ansible-playbook@v2
