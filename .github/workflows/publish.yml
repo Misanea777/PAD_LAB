@@ -69,15 +69,9 @@ jobs:
         push: true
         tags: misanea777/distr_game.lobby_service:latest
 
-    # - name: Deploy APIService
-    #   uses: dawidd6/action-ansible-playbook@v2
-    #   with:
-    #     playbook: deploy.yml
-    #     directory: lobby/
-    #     key: ${{secrets.KART_SSH_PRIV_KEY}}
-    #     inventory: |
-    #       [all]
-    #       kartservices.com ansible_ssh_port=${{secrets.KART_SSH_PORT}} ansible_ssh_user=${{secrets.KART_SSH_USER}} ansible_become_user=${{secrets.KART_ANSIBLE_BECOME_USER}} ansible_become_password=${{secrets.KART_ANSIBLE_BECOME_PASSWORD}}
-    #     options: |
-    #       --verbose
+    - name: Invoke deployment hook
+      uses: distributhor/workflow-webhook@v3
+      env:
+        webhook_url: ${{ secrets.WEBHOOK_URL }}
+        
       
