@@ -11,5 +11,5 @@ func main() {
 	conn.PingEureka()
 
 	cntrl.Init()
-	//test
+	//testds
 }
