@@ -13,14 +13,13 @@ jobs:
 
       - name: Checkout Code
         uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
       
       - name: Lint Code Base
         uses: github/super-linter@v4
 
 
   check:
+    needs: lint
     name: Check changed files
     outputs:
       gateway_service: ${{ steps.check_files.outputs.gateway_service }}
