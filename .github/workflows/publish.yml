@@ -63,8 +63,18 @@ jobs:
             done < files.txt
   
 
-  lobby_service:
+  test:
     needs: check
+    if: needs.check.outputs.lobby_service == 'true'
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Test with the Go CLI
+      run: go test -v ./...
+
+  lobby_service:
+    needs: test
     if: needs.check.outputs.lobby_service == 'true'
     runs-on: ubuntu-latest
     steps:
