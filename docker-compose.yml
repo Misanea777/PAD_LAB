@@ -153,10 +153,8 @@ services:
   #   volumes:
   #     - mongodb_data_container:/data/db
   
-  lobby:
-    build:
-      context: lobby/
-      dockerfile: Dockerfile
+  lobby_service:
+    image: misanea777/distr_game.lobby_service:latest
     ports:
       - 8084:8084
     restart: on-failure
