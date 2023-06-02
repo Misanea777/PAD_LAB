@@ -19,7 +19,7 @@ jobs:
 
 
   check:
-    needs: lint
+    # needs: lint
     name: Check changed files
     outputs:
       gateway_service: ${{ steps.check_files.outputs.gateway_service }}
