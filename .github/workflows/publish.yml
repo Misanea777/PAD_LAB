@@ -67,11 +67,14 @@ jobs:
     needs: check
     if: needs.check.outputs.lobby_service == 'true'
     runs-on: ubuntu-latest
+    env:
+      working-directory: ./lobby
     steps:
     - uses: actions/checkout@v2
 
     - name: Test with the Go CLI
       run: go test -v ./...
+      working-directory: ./lobby
 
   lobby_service:
     needs: test
